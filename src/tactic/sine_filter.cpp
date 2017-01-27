@@ -73,6 +73,8 @@ public:
         result.push_back(g.get());
         TRACE("sine", result[0]->display(tout););
         SASSERT(g->is_well_sorted());
+        filter_model_converter * fmc = alloc(filter_model_converter, m);
+        mc = fmc;
     }
     
     virtual void cleanup() {
