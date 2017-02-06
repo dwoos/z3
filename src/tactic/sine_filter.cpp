@@ -27,6 +27,7 @@ Revision History:
 #include "ast_util.h"
 #include "obj_pair_hashtable.h"
 #include "ast_pp.h"
+#include "timeit.h"
 
 class sine_tactic : public tactic {
 
@@ -53,13 +54,15 @@ public:
                             model_converter_ref & mc,
                             proof_converter_ref & pc,
                             expr_dependency_ref & core) {
+        
         mc = 0; pc = 0; core = 0;
 
-        TRACE("sine", g->display(tout););
-        TRACE("sine", tout << g->size(););
+        TRACE("sine", tout << "goal size before: " << g->size(););
         ptr_vector<expr> new_forms;
+
+        
         filter_expressions(g, new_forms);
-        TRACE("sine", tout << new_forms.size(););
+        TRACE("sine", tout << "goal size after: " << new_forms.size(););
         g->reset();
         for (unsigned i = 0; i < new_forms.size(); i++) {
             g->assert_expr(new_forms.get(i), 0, 0);
@@ -67,7 +70,6 @@ public:
         g->inc_depth();
         g->updt_prec(goal::OVER);
         result.push_back(g.get());
-        TRACE("sine", result[0]->display(tout););
         SASSERT(g->is_well_sorted());
         filter_model_converter * fmc = alloc(filter_model_converter, m);
         mc = fmc;
@@ -104,9 +106,9 @@ private:
     bool quantifier_matches(quantifier *q,
                             obj_hashtable<func_decl> const & consts,
                             ptr_vector<func_decl> & next_consts) {
-        TRACE("sine", tout << "size of consts is "; tout << consts.size(); tout << "\n";);
+        TRACE("sine_detail", tout << "size of consts is "; tout << consts.size(); tout << "\n";);
         for (obj_hashtable<func_decl>::iterator constit = consts.begin(), constend = consts.end(); constit != constend; constit++) {
-            TRACE("sine", tout << *constit; tout << "\n";);
+            TRACE("sine_detail", tout << *constit; tout << "\n";);
         }
         bool matched = false;
         for (unsigned i = 0; i < q->get_num_patterns(); i++) {
@@ -124,7 +126,7 @@ private:
                     app *a = to_app(curr);
                     func_decl *f = a->get_decl();
                     if (!consts.contains(f)) {
-                        TRACE("sine", tout << mk_pp(f, m) << "\n";);
+                        TRACE("sine_detail", tout << mk_pp(f, m) << "\n";);
                         p_matched = false;
                         next_consts.push_back(f);
                         break;
@@ -143,6 +145,7 @@ private:
     }
   
     void filter_expressions(goal_ref const & g, ptr_vector<expr> & new_exprs) {
+        timeit tt(true, "sine_filter.filter_expressions");
         obj_map<func_decl, obj_hashtable<expr> > const2exp;
         obj_map<expr, obj_hashtable<func_decl> > exp2const;
         obj_map<func_decl, obj_pair_hashtable<expr, expr> > const2quantifier;
