@@ -86,23 +86,6 @@ private:
         return std::pair<expr*, expr*>(e, root);
     }
 
-    void find_constants(expr *e, obj_hashtable<func_decl> &consts) {
-        ptr_vector<expr> stack;
-        stack.push_back(e);
-        expr *curr;
-        while (!stack.empty()) {
-            curr = stack.back();
-            stack.pop_back();
-            if (is_app(curr)) {
-                app *a = to_app(curr);
-                if (is_uninterp(a)) {
-                    func_decl *f = a->get_decl();
-                    consts.insert_if_not_there(f);
-                }
-            }
-        }
-    }
-
     bool quantifier_matches(quantifier *q,
                             obj_hashtable<func_decl> const & consts,
                             ptr_vector<func_decl> & next_consts) {
