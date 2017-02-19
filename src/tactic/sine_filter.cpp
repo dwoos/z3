@@ -141,6 +141,9 @@ private:
         while (!stack.empty()) {
             curr = stack.back();
             stack.pop_back();
+            if (!exp2const.contains(curr.second)) {
+              exp2const.insert(curr.second, obj_hashtable<func_decl>());
+            }
             if (is_app(curr.first)) {
                 app *a = to_app(curr.first);
                 if (is_uninterp(a)) {
@@ -159,9 +162,6 @@ private:
                     }
                     if (!const2exp[f].contains(curr.second)) {
                         const2exp[f].insert(curr.second);
-                    }
-                    if (!exp2const.contains(curr.second)) {
-                        exp2const.insert(curr.second, obj_hashtable<func_decl>());
                     }
                     if (!exp2const[curr.second].contains(f)) {
                         exp2const[curr.second].insert(f);
