@@ -128,7 +128,7 @@ private:
     }
   
     void filter_expressions(goal_ref const & g, ptr_vector<expr> & new_exprs) {
-        timeit tt(true, "sine_filter.filter_expressions");
+        //timeit tt(true, "sine_filter.filter_expressions");
         obj_map<func_decl, obj_hashtable<expr> > const2exp;
         obj_map<expr, obj_hashtable<func_decl> > exp2const;
         obj_map<func_decl, obj_pair_hashtable<expr, expr> > const2quantifier;
