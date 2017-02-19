@@ -205,15 +205,16 @@ private:
         obj_hashtable<expr> visited;
         ptr_vector<expr> to_visit;
         to_visit.push_back(g->form(g->size() - 1));
+        visited.insert(g->form(g->size() - 1));
         expr *visiting;
         while (!to_visit.empty()) {
             visiting = to_visit.back();
             to_visit.pop_back();
-            visited.insert(visiting);
             for (obj_hashtable<func_decl>::iterator constit = exp2const[visiting].begin(), constend = exp2const[visiting].end(); constit != constend; constit++) {
                 for (obj_hashtable<expr>::iterator exprit = const2exp[*constit].begin(), exprend = const2exp[*constit].end(); exprit != exprend; exprit++) {
                     if (!visited.contains(*exprit)) {
                         to_visit.push_back(*exprit);
+                        visited.insert(*exprit);
                     }
                 }
             }
