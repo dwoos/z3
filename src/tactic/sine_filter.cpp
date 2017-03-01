@@ -91,7 +91,7 @@ private:
                             ptr_vector<func_decl> & next_consts) {
         TRACE("sine_detail", tout << "size of consts is "; tout << consts.size(); tout << "\n";);
         for (obj_hashtable<func_decl>::iterator constit = consts.begin(), constend = consts.end(); constit != constend; constit++) {
-            TRACE("sine_detail", tout << *constit; tout << "\n";);
+            //TRACE("sine_detail", tout << *constit; tout << "\n";);
         }
         bool matched = false;
         for (unsigned i = 0; i < q->get_num_patterns(); i++) {
@@ -103,21 +103,23 @@ private:
                 continue;
             }
             while (!stack.empty()) {
-                curr = stack.back();
-                stack.pop_back();
-                if (is_app(curr)) {
-                    app *a = to_app(curr);
-                    func_decl *f = a->get_decl();
-                    if (!consts.contains(f)) {
-                        TRACE("sine_detail", tout << mk_pp(f, m) << "\n";);
-                        p_matched = false;
-                        next_consts.push_back(f);
-                        break;
-                    }
-                    for (unsigned j = 0; j < a->get_num_args(); j++) {
-                        stack.push_back(a->get_arg(j));
-                    }
+              curr = stack.back();
+              stack.pop_back();
+              if (is_app(curr)) {
+                app *a = to_app(curr);
+                if (is_uninterp(a)) {
+                  func_decl *f = a->get_decl();
+                  if (!consts.contains(f)) {
+                    //TRACE("sine_detail", tout << mk_pp(f, m) << "\n";);
+                    p_matched = false;
+                    next_consts.push_back(f);
+                    break;
+                  }
                 }
+                for (unsigned j = 0; j < a->get_num_args(); j++) {
+                  stack.push_back(a->get_arg(j));
+                }
+              }
             }
             if (p_matched) {
                 matched = true;
@@ -174,7 +176,7 @@ private:
             else if (is_quantifier(curr.first)) {
                 quantifier *q = to_quantifier(curr.first);
                 if (q->is_forall()) {
-                    if (q->has_patterns()) {
+                    if (q->get_num_patterns() > 0) {
                         ptr_vector<func_decl> next_consts;
                         if (quantifier_matches(q, consts, next_consts)) {
                             stack.push_back(work_item(q->get_expr(), curr.second));
@@ -222,6 +224,10 @@ private:
         for (unsigned i = 0; i < g->size(); i++) {
             if (visited.contains(g->form(i))) {
                 new_exprs.push_back(g->form(i));
+            }
+            else {
+              TRACE("sine-exclude",
+                    tout << mk_pp(g->form(i), m) << "\n";);
             }
         }
     }
